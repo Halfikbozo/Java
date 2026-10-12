@@ -3,6 +3,9 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -40,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
             if (!checkPassword()) {
                 return;
             }
+
+            saveToFile();
 
             Toast.makeText(
                     this,
@@ -88,5 +94,28 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
+    private void saveToFile() {
+        String name = editName.getText().toString().trim();
+        String surname = editSurname.getText().toString().trim();
+        String email = editEmail.getText().toString().trim();
+        String password = editPassword.getText().toString().trim();
 
+        String data = "\nImię: " + name
+                + "\nNazwisko: " + surname
+                + "\nEmail: " + email
+                + "\nHasło: " + password;
+
+        try (FileOutputStream fos = openFileOutput(
+                "dane.txt",
+                MODE_APPEND
+        )) {
+            fos.write(data.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            Toast.makeText(
+                    this,
+                    "Błąd zapisu do pliku!",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
+    }
 }
